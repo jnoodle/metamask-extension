@@ -27,6 +27,12 @@ module.exports = {
           },
         ],
       },
+      {
+        test: /\.css$/,
+        loaders: [
+          'css-loader'
+        ],
+      },
     ],
   },
   resolve: {
