@@ -1,5 +1,8 @@
 const assert = require('assert')
 const EventEmitter = require('events')
+// https://github.com/MetaMask/obs-store
+//  ObservableStore is a synchronous in-memory store for a single value,
+//  that you can subscribe to updates on.
 const ObservableStore = require('obs-store')
 const ComposedStore = require('obs-store/lib/composed')
 const EthQuery = require('eth-query')
@@ -15,12 +18,12 @@ const extend = require('extend')
 const networks = { networkList: {} }
 
 const {
-  ROPSTEN,
-  RINKEBY,
-  KOVAN,
+  ROPSTEN, // Ropsten 是以太坊官方提供的测试网络，共识机制为PoW，支持geth和parity
+  RINKEBY, // Rinkeby 是以太坊官方提供的测试网络，使用PoA共识机制，只支持geth
+  KOVAN, // Kovan 是Parity的开发团队发起的测试网络，使用了PoA，只支持parity
   MAINNET,
   LOCALHOST,
-  GOERLI,
+  GOERLI, // Görli 以太坊2.0
 } = require('./enums')
 const INFURA_PROVIDER_TYPES = [ROPSTEN, RINKEBY, KOVAN, MAINNET, GOERLI]
 
@@ -28,6 +31,7 @@ const env = process.env.METAMASK_ENV
 const METAMASK_DEBUG = process.env.METAMASK_DEBUG
 
 let defaultProviderConfigType
+// 根据环境设置默认网络
 if (process.env.IN_TEST === 'true') {
   defaultProviderConfigType = LOCALHOST
 } else if (METAMASK_DEBUG || env === 'test') {
@@ -44,6 +48,8 @@ const defaultNetworkConfig = {
   ticker: 'ETH',
 }
 
+// EventEmitter - 所有能触发事件的对象都是 EventEmitter 类的实例
+// 这些对象有一个 eventEmitter.on() 函数，用于将一个或多个函数绑定到命名事件上
 module.exports = class NetworkController extends EventEmitter {
 
   constructor (opts = {}) {
@@ -55,6 +61,7 @@ module.exports = class NetworkController extends EventEmitter {
     this.providerStore = new ObservableStore(providerConfig)
     this.networkStore = new ObservableStore('loading')
     this.networkConfig = new ObservableStore(defaultNetworkConfig)
+    // compose all observable store
     this.store = new ComposedStore({ provider: this.providerStore, network: this.networkStore, settings: this.networkConfig })
     this.on('networkDidChange', this.lookupNetwork)
     // provider and block tracker
@@ -65,10 +72,17 @@ module.exports = class NetworkController extends EventEmitter {
     this._blockTrackerProxy = null
   }
 
+  // 初始化 Provider
   initializeProvider (providerParams) {
     this._baseProviderParams = providerParams
     const { type, rpcTarget, chainId, ticker, nickname } = this.providerStore.getState()
+    // type: ROPSTEN, RINKEBY, KOVAN, MAINNET, GOERLI
+    // rpcTarget: rpcUrl
+    // chainId: eg 88
+    // ticker: ticker || 'ETH'
+    // nickname: 网络昵称
     this._configureProvider({ type, rpcTarget, chainId, ticker, nickname })
+    // 查找当前的网络ID by net_version 并 setNetworkState
     this.lookupNetwork()
   }
 
@@ -93,6 +107,7 @@ module.exports = class NetworkController extends EventEmitter {
   }
 
   setNetworkState (network, type) {
+    // 出错或者在切换过程中，network === 'loading'
     if (network === 'loading') {
       return this.networkStore.putState(network)
     }
@@ -109,12 +124,15 @@ module.exports = class NetworkController extends EventEmitter {
     return this.getNetworkState() === 'loading'
   }
 
+  // 查找当前的网络ID by net_version 并 setNetworkState
   lookupNetwork () {
     // Prevent firing when provider is not defined.
     if (!this._provider) {
       return log.warn('NetworkController - lookupNetwork aborted due to missing provider')
     }
     const { type } = this.providerStore.getState()
+    // https://github.com/ethereumjs/eth-query
+    //  minimal rpc wrapper
     const ethQuery = new EthQuery(this._provider)
     const initialNetwork = this.getNetworkState()
     ethQuery.sendAsync({ method: 'net_version' }, (err, network) => {
@@ -171,6 +189,7 @@ module.exports = class NetworkController extends EventEmitter {
     this.emit('networkDidChange', opts.type)
   }
 
+  // 设置 provider
   _configureProvider (opts) {
     const { type, rpcTarget, chainId, ticker, nickname } = opts
     // infura type-based endpoints
@@ -190,6 +209,7 @@ module.exports = class NetworkController extends EventEmitter {
 
   _configureInfuraProvider ({ type }) {
     log.info('NetworkController - configureInfuraProvider', type)
+    // ref createInfuraClient.js
     const networkClient = createInfuraClient({
       network: type,
       onRequest: (req) => this.emit('rpc-req', { network: type, req }),
@@ -204,12 +224,14 @@ module.exports = class NetworkController extends EventEmitter {
 
   _configureLocalhostProvider () {
     log.info('NetworkController - configureLocalhostProvider')
+    // ref createLocalhostClient.js
     const networkClient = createLocalhostClient()
     this._setNetworkClient(networkClient)
   }
 
   _configureStandardProvider ({ rpcUrl, chainId, ticker, nickname }) {
     log.info('NetworkController - configureStandardProvider', rpcUrl)
+    // ref createJsonRpcClient.js
     const networkClient = createJsonRpcClient({ rpcUrl })
     // hack to add a 'rpc' network with chainId
     networks.networkList['rpc'] = {
@@ -228,6 +250,7 @@ module.exports = class NetworkController extends EventEmitter {
   }
 
   _setNetworkClient ({ networkMiddleware, blockTracker }) {
+    // ref createMetamaskMiddleware.js
     const metamaskMiddleware = createMetamaskMiddleware(this._baseProviderParams)
     const engine = new JsonRpcEngine()
     engine.push(metamaskMiddleware)
@@ -241,11 +264,18 @@ module.exports = class NetworkController extends EventEmitter {
     if (this._providerProxy) {
       this._providerProxy.setTarget(provider)
     } else {
+      // https://github.com/kumavis/swappable-obj-proxy#createswappableproxy
+      //  Creates a Proxy around any object. Retarget the proxy with setTarget.
       this._providerProxy = createSwappableProxy(provider)
     }
     if (this._blockTrackerProxy) {
       this._blockTrackerProxy.setTarget(blockTracker)
     } else {
+      // https://github.com/kumavis/swappable-obj-proxy#createeventemitterproxy
+      //  Creates a Proxy around an EventEmitter.
+      //  If the proxy has setTarget called with a different EventEmitter,
+      //  all events will be removed from the old target and transferred to the new EventEmitter.
+      //  eventFilter: do not contain 'newListener', 'removeListener' events
       this._blockTrackerProxy = createEventEmitterProxy(blockTracker, { eventFilter: 'skipInternal' })
     }
     // set new provider and blockTracker

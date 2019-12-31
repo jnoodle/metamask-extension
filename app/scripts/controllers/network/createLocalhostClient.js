@@ -16,9 +16,13 @@ function createLocalhostClient () {
   const blockTracker = new BlockTracker({ provider: blockProvider, pollingInterval: 1000 })
 
   const networkMiddleware = mergeMiddleware([
+    // 估算交易需要的gas用量，delay 2秒？
     createEstimateGasMiddleware(),
+    // rewrite blockRef to block-tracker's block number if necessary
     createBlockRefRewriteMiddleware({ blockTracker }),
+    // inspect if response contains a block ref higher than our latest block
     createBlockTrackerInspectorMiddleware({ blockTracker }),
+    // do fetch
     fetchMiddleware,
   ])
   return { networkMiddleware, blockTracker }

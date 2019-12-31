@@ -9,16 +9,23 @@ const BlockTracker = require('eth-block-tracker')
 
 module.exports = createJsonRpcClient
 
+// https://github.com/MetaMask/json-rpc-engine
+
 function createJsonRpcClient ({ rpcUrl }) {
   const fetchMiddleware = createFetchMiddleware({ rpcUrl })
   const blockProvider = providerFromMiddleware(fetchMiddleware)
   const blockTracker = new BlockTracker({ provider: blockProvider })
 
   const networkMiddleware = mergeMiddleware([
+    // rewrite blockRef to block-tracker's block number if necessary
     createBlockRefRewriteMiddleware({ blockTracker }),
+    // block cache
     createBlockCacheMiddleware({ blockTracker }),
+    // inflight cache
     createInflightMiddleware(),
+    // inspect if response contains a block ref higher than our latest block
     createBlockTrackerInspectorMiddleware({ blockTracker }),
+    // do fetch, 出现超时错误会重试
     fetchMiddleware,
   ])
   return { networkMiddleware, blockTracker }

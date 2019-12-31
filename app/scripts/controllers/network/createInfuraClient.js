@@ -11,21 +11,56 @@ const BlockTracker = require('eth-block-tracker')
 
 module.exports = createInfuraClient
 
+// https://infura.io/ Infura 是一个 Web3 Provider
+// https://github.com/MetaMask/json-rpc-engine
+//  a tool for processing JSON RPC
+
+/**
+ * createInfuraClient
+ * @param network
+ * @param onRequest
+ * @return {{networkMiddleware: *, blockTracker: *}}
+ */
 function createInfuraClient ({ network, onRequest }) {
+  // mergeMiddleware add middleware to JsonRpcEngine
+  // 所谓的 middleware 就是 function(req, res, next, end){} 这样一个 function
   const infuraMiddleware = mergeMiddleware([
     createRequestHookMiddleware(onRequest),
+
+    // https://github.com/MetaMask/eth-json-rpc-infura#usage-as-middleware
+    //  json-rpc-engine middleware for infura's REST endpoints.
     createInfuraMiddleware({ network, maxAttempts: 5, source: 'metamask' }),
   ])
+
+  // https://github.com/MetaMask/eth-json-rpc-middleware
+  //  Ethereum middleware for composing an ethereum provider using json-rpc-engine.
+  // providerFromMiddleware 将 middleware 转换成 provider
   const infuraProvider = providerFromMiddleware(infuraMiddleware)
+
+  // https://github.com/MetaMask/eth-block-tracker
+  //  A JS module for keeping track of the latest Ethereum block by polling an ethereum provider.
+  // creates a new block tracker with infuraProvider as a data source
   const blockTracker = new BlockTracker({ provider: infuraProvider })
 
   const networkMiddleware = mergeMiddleware([
+    // network to eth_chainId, net_version
     createNetworkAndChainIdMiddleware({ network }),
+
+    // block cache: 分为 permanently，until fork，for block，never 几种策略
     createBlockCacheMiddleware({ blockTracker }),
+
+    // inflight cache
     createInflightMiddleware(),
+
+    // 根据 Block 在 infura rpc 接口请求参数中的位置，获取 block，如果没有，请求最新的
     createBlockReRefMiddleware({ blockTracker, provider: infuraProvider }),
+
+    // RetryOnEmptyMiddleware will retry any request with an empty response
     createRetryOnEmptyMiddleware({ blockTracker, provider: infuraProvider }),
+
+    // inspect if response contains a block ref higher than our latest block
     createBlockTrackerInspectorMiddleware({ blockTracker }),
+
     infuraMiddleware,
   ])
   return { networkMiddleware, blockTracker }
