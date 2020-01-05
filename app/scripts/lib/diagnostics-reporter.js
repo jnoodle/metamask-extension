@@ -1,3 +1,4 @@
+// 诊断报告
 class DiagnosticsReporter {
 
   constructor ({ firstTimeInfo, version }) {
@@ -5,6 +6,7 @@ class DiagnosticsReporter {
     this.version = version
   }
 
+  // 孤块
   async reportOrphans (orphans) {
     try {
       return await this.submit({
@@ -19,6 +21,7 @@ class DiagnosticsReporter {
     }
   }
 
+  // 多个Keyrings
   async reportMultipleKeyrings (rawKeyrings) {
     try {
       const keyrings = await Promise.all(rawKeyrings.map(async (keyring, index) => {

@@ -9,17 +9,18 @@ const { getFinalStates, normalizeTxParams } = require('./lib/util')
   TransactionStateManager is responsible for the state of a transaction and
   storing the transaction
   it also has some convenience methods for finding subsets of transactions
+  TransactionStateManager 负责交易的状态和存储交易，它还具有一些方便的方法来查找交易的子集
   *
   *STATUS METHODS
-  <br>statuses:
-  <br>   - `'unapproved'` the user has not responded
-  <br>   - `'rejected'` the user has responded no!
-  <br>   - `'approved'` the user has approved the tx
-  <br>   - `'signed'` the tx is signed
-  <br>   - `'submitted'` the tx is sent to a server
-  <br>   - `'confirmed'` the tx has been included in a block.
-  <br>   - `'failed'` the tx failed for some reason, included on tx data.
-  <br>   - `'dropped'` the tx nonce was already used
+  <br>statuses: 交易状态
+  <br>   - `'unapproved'` the user has not responded 用户未响应
+  <br>   - `'rejected'` the user has responded no! 用户拒绝
+  <br>   - `'approved'` the user has approved the tx 用户批准
+  <br>   - `'signed'` the tx is signed 已签名
+  <br>   - `'submitted'` the tx is sent to a server 已提交
+  <br>   - `'confirmed'` the tx has been included in a block. 已确认
+  <br>   - `'failed'` the tx failed for some reason, included on tx data. 失败
+  <br>   - `'dropped'` the tx nonce was already used nonce相同，被丢弃
   @param opts {object}
   @param {object} [opts.initState={ transactions: [] }] initial transactions list with the key transaction {array}
   @param {number} [opts.txHistoryLimit] limit for how many finished
@@ -40,6 +41,7 @@ class TransactionStateManager extends EventEmitter {
   }
 
   /**
+    生成 txMeta
     @param opts {object} - the object to use when overwriting defaults
     @returns {txMeta} the default txMeta object
   */
@@ -49,13 +51,14 @@ class TransactionStateManager extends EventEmitter {
     return extend({
       id: createId(),
       time: (new Date()).getTime(),
-      status: 'unapproved',
+      status: 'unapproved', // 生成时用户还没有response
       metamaskNetworkId: netId,
       loadingDefaults: true,
     }, opts)
   }
 
   /**
+    获取当前网络下的所有 txMeta[]
     @returns {array} of txMetas that have been filtered for only the current network
   */
   getTxList () {
@@ -65,6 +68,7 @@ class TransactionStateManager extends EventEmitter {
   }
 
   /**
+    获取所有交易
     @returns {array} of all the txMetas in store
   */
   getFullTxList () {
@@ -72,10 +76,12 @@ class TransactionStateManager extends EventEmitter {
   }
 
   /**
+    获得所有 unapproved 状态 txList
     @returns {array} the tx list whos status is unapproved
   */
   getUnapprovedTxList () {
     const txList = this.getTxsByMetaData('status', 'unapproved')
+    // 返回 { txid: tx ... } 这种格式
     return txList.reduce((result, tx) => {
       result[tx.id] = tx
       return result
@@ -83,6 +89,7 @@ class TransactionStateManager extends EventEmitter {
   }
 
   /**
+    获取 approved 状态的 txList
     @param [address] {string} - hex prefixed address to sort the txMetas for [optional]
     @returns {array} the tx list whos status is approved if no address is provide
     returns all txMetas who's status is approved for the current network
@@ -94,6 +101,7 @@ class TransactionStateManager extends EventEmitter {
   }
 
   /**
+    获取 submitted 状态的 txList
     @param [address] {string} - hex prefixed address to sort the txMetas for [optional]
     @returns {array} the tx list whos status is submitted if no address is provide
     returns all txMetas who's status is submitted for the current network
@@ -105,6 +113,7 @@ class TransactionStateManager extends EventEmitter {
   }
 
   /**
+    获取 confirmed 状态的 txList
     @param [address] {string} - hex prefixed address to sort the txMetas for [optional]
     @returns {array} the tx list whos status is confirmed if no address is provide
     returns all txMetas who's status is confirmed for the current network
@@ -116,6 +125,9 @@ class TransactionStateManager extends EventEmitter {
   }
 
   /**
+    把 txMeta 加入到 store 的 transactions 里
+    如果 list 超过 txHistoryLimit，会移除一个 final state 的交易
+    还会添加 txMeta 快照到 txMeta.history
     Adds the txMeta to the list of transactions in the store.
     if the list is over txHistoryLimit it will remove a transaction that
     is in its final state
@@ -164,6 +176,7 @@ class TransactionStateManager extends EventEmitter {
     return txMeta
   }
   /**
+    根据 txId 获取 txMeta
     @param txId {number}
     @returns {object} the txMeta who matches the given id if none found
     for the network returns undefined
@@ -175,6 +188,7 @@ class TransactionStateManager extends EventEmitter {
 
   /**
     updates the txMeta in the list and adds a history entry
+    更新列表中的txMeta并添加历史记录条目
     @param txMeta {Object} - the txMeta to update
     @param [note] {string} - a note about the update for history
   */
@@ -246,6 +260,8 @@ class TransactionStateManager extends EventEmitter {
   }
 
   /**
+   对 txList 进行过滤
+   注意这里如果 opts 有多个条件，要全都满足，交集
   @param opts {object} -  an object of fields to search for eg:<br>
   let <code>thingsToLookFor = {<br>
     to: '0x0..',<br>
@@ -281,7 +297,7 @@ class TransactionStateManager extends EventEmitter {
     return filteredTxList
   }
   /**
-
+    根据 meta 条件过滤 txList
     @param key {string} - the key to check
     @param value - the value your looking for can also be a function that returns a bool
     @param [txList=this.getTxList()] {array} - the list to search. default is the txList
@@ -300,7 +316,7 @@ class TransactionStateManager extends EventEmitter {
     })
   }
 
-  // get::set status
+  // get::set status 下面是一些简单的对状态的get和set
 
   /**
     @param txId {number} - the txMeta Id
@@ -344,6 +360,7 @@ class TransactionStateManager extends EventEmitter {
   }
 
   /**
+    submitted 更新的时候，记录下时间
     should update the status of the tx to 'submitted'.
     and add a time stamp for when it was called
     @param txId {number} - the txMeta Id
@@ -373,6 +390,7 @@ class TransactionStateManager extends EventEmitter {
 
 
   /**
+    failed 更新的时候，记录错误信息
     should update the status of the tx to 'failed'.
     and put the error on the txMeta
     @param txId {number} - the txMeta Id
@@ -392,6 +410,7 @@ class TransactionStateManager extends EventEmitter {
   }
 
   /**
+    删掉指定 address 在当前网络发起的所有 txList
     Removes transaction from the given address for the current network
     from the txList
     @param address {string} - hex string of the from address on the txParams to remove
@@ -423,6 +442,7 @@ class TransactionStateManager extends EventEmitter {
   //    - `'dropped'` the tx nonce was already used
 
   /**
+    更新交易状态会触发一系列事件
     @param txId {number} - the txMeta Id
     @param status {string} - the status to set on the txMeta
     @emits tx:status-update - passes txId and status
@@ -453,7 +473,7 @@ class TransactionStateManager extends EventEmitter {
   }
 
   /**
-    Saves the new/updated txList.
+    Saves the new/updated txList. 更新 transactions
     @param transactions {array} - the list of transactions to save
   */
   // Function is intended only for internal use

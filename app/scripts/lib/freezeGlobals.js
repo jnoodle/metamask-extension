@@ -1,5 +1,6 @@
 
 /**
+ * 阻止 Promise 重新定义
  * Freezes the Promise global and prevents its reassignment.
  */
 const deepFreeze = require('deep-freeze-strict')

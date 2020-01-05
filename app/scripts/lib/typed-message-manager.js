@@ -25,6 +25,7 @@ const jsonschema = require('jsonschema')
  *
  */
 
+// eth_signTypedData 接口数据制备
 module.exports = class TypedMessageManager extends EventEmitter {
   /**
    * Controller in charge of managing - storing, adding, removing, updating - TypedMessage.
@@ -124,6 +125,7 @@ module.exports = class TypedMessageManager extends EventEmitter {
   }
 
   /**
+   * 根据调用方法版本不同使用不同的验证
    * Helper method for this.addUnapprovedMessage. Validates that the passed params have the required properties.
    *
    * @param {Object} params The params to validate

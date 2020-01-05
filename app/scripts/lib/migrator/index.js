@@ -7,6 +7,7 @@ const EventEmitter = require('events')
  */
 
 /**
+ * 处理 MetaMask 迁移
  * @typedef {object} MigratorOptions
  * @property {Array<Migration>} [migrations] - The list of migrations to apply
  * @property {number} [defaultVersion] - The version to use in the initial state
@@ -21,9 +22,9 @@ class Migrator extends EventEmitter {
   constructor (opts = {}) {
     super()
     const migrations = opts.migrations || []
-    // sort migrations by version
+    // sort migrations by version 按版本顺序从小到大排列
     this.migrations = migrations.sort((a, b) => a.version - b.version)
-    // grab migration with highest version
+    // grab migration with highest version 获取最新版本
     const lastMigration = this.migrations.slice(-1)[0]
     // use specified defaultVersion or highest migration version
     this.defaultVersion = opts.defaultVersion || (lastMigration && lastMigration.version) || 0
@@ -31,9 +32,11 @@ class Migrator extends EventEmitter {
 
   // run all pending migrations on meta in place
   async migrateData (versionedData = this.generateInitialState()) {
+    // 获取所有尚未运行的迁移
     // get all migrations that have not yet been run
     const pendingMigrations = this.migrations.filter(migrationIsPending)
 
+    // 挨个执行
     // perform each migration
     for (const index in pendingMigrations) {
       const migration = pendingMigrations[index]

@@ -5,6 +5,7 @@ const NOTIFICATION_WIDTH = 360
 class NotificationManager {
 
   /**
+   * 一组用于控制通知弹出窗口的显示和隐藏的方法
    * A collection of methods for controlling the showing and hiding of the notification popup.
    *
    * @typedef {Object} NotificationManager

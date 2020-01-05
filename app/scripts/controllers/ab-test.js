@@ -3,6 +3,7 @@ const extend = require('xtend')
 const { getRandomArrayItem } = require('../lib/util')
 
 /**
+ * 进行 a/b 测试，比如全屏显示是否会增加成功确认率
  * a/b test descriptions:
  * - `fullScreenVsPopup`:
  *   - description: tests whether showing tx confirmations in full screen in the browser will increase rates of successful
@@ -29,6 +30,7 @@ class ABTestController {
   }
 
   /**
+   * 返回当前用户已分配到的测试组的名称
    * Returns the name of the test group to which the current user has been assigned
    * @param {string} abTestKey the key of the a/b test
    * @return {string} the name of the assigned test group

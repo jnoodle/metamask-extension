@@ -1,5 +1,7 @@
 /* Account Tracker
  *
+ * 负责跟踪任意数量的帐户并缓存其当前余额和交易数
+ *
  * This module is responsible for tracking any number of accounts
  * and caching their current balances & transaction counts.
  *

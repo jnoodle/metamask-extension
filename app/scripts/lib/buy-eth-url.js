@@ -1,6 +1,7 @@
 module.exports = getBuyEthUrl
 
 /**
+ * 获取可以买 ETH 的地址
  * Gives the caller a url at which the user can acquire eth, depending on the network they are in
  *
  * @param {object} opts Options required to determine the correct url

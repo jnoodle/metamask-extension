@@ -11,6 +11,7 @@ const METAMETRICS_TRACKING_URL = inDevelopment
   ? 'http://www.metamask.io/metametrics'
   : 'http://www.metamask.io/metametrics-prod'
 
+// 连接 metamask 分析服务（metametrics），统计、错误分析等
 function backEndMetaMetricsEvent (metaMaskState, eventData) {
   const stateEventData = getMetaMetricState({ metamask: metaMaskState })
 

@@ -1,5 +1,6 @@
 module.exports = setupDappAutoReload
 
+// 处理页面何时重新加载
 function setupDappAutoReload (web3, observable) {
   // export web3 as a global, checking for usage
   let reloadInProgress = false

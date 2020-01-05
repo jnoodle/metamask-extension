@@ -16,6 +16,7 @@ class AsyncWritableStream extends WritableStream {
 
 }
 
+// 创建异步 writable stream
 function createStreamSink (asyncWriteFn, _opts) {
   return new AsyncWritableStream(asyncWriteFn, _opts)
 }

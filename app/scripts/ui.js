@@ -23,6 +23,8 @@ const StreamProvider = require('web3-stream-provider')
 const {setupMultiplex} = require('./lib/stream-utils.js')
 const log = require('loglevel')
 
+// UI 相关方法
+
 start().catch(log.error)
 
 async function start () {
@@ -44,6 +46,7 @@ async function start () {
     return state
   }
 
+  // 识别窗口类型（弹出窗口，通知）
   // identify window type (popup, notification)
   const windowType = getEnvironmentType(window.location.href)
   global.METAMASK_UI_TYPE = windowType
@@ -56,6 +59,7 @@ async function start () {
   const activeTab = await queryCurrentActiveTab(windowType)
   initializeUiWithTab(activeTab)
 
+  // 如果 popop 开着，则关掉
   function closePopupIfOpen (windowType) {
     if (windowType !== ENVIRONMENT_TYPE_NOTIFICATION) {
       // should close only chrome popup
@@ -63,6 +67,7 @@ async function start () {
     }
   }
 
+  // 初始化 UI 出错，则提示：MetaMask应用无法加载：请重新打开并关闭MetaMask以重新启动
   function displayCriticalError (container, err) {
     container.innerHTML = '<div class="critical-error">The MetaMask app failed to load: please open and close MetaMask again to restart.</div>'
     container.style.height = '80px'
@@ -70,6 +75,7 @@ async function start () {
     throw err
   }
 
+  // 初始化 UI
   function initializeUiWithTab (tab) {
     const container = document.getElementById('app-content')
     initializeUi(tab, container, connectionStream, (err, store) => {
@@ -87,6 +93,7 @@ async function start () {
   }
 }
 
+// 查询当前激活的 tab
 async function queryCurrentActiveTab (windowType) {
   return new Promise((resolve) => {
     // At the time of writing we only have the `activeTab` permission which means
@@ -107,6 +114,7 @@ async function queryCurrentActiveTab (windowType) {
   })
 }
 
+//
 function initializeUi (activeTab, container, connectionStream, cb) {
   connectToAccountManager(connectionStream, (err, backgroundConnection) => {
     if (err) {
@@ -122,6 +130,7 @@ function initializeUi (activeTab, container, connectionStream, cb) {
 }
 
 /**
+ * 建立与后台和 Web3 provider 的连接
  * Establishes a connection to the background and a Web3 provider
  *
  * @param {PortDuplexStream} connectionStream PortStream instance establishing a background connection
@@ -134,6 +143,7 @@ function connectToAccountManager (connectionStream, cb) {
 }
 
 /**
+ * 建立与 Web3 provider 提供程序的流连接
  * Establishes a streamed connection to a Web3 provider
  *
  * @param {PortDuplexStream} connectionStream PortStream instance establishing a background connection
@@ -149,6 +159,7 @@ function setupWeb3Connection (connectionStream) {
 }
 
 /**
+ * 建立与后台账户管理的流式连接
  * Establishes a streamed connection to the background account manager
  *
  * @param {PortDuplexStream} connectionStream PortStream instance establishing a background connection

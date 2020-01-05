@@ -6,6 +6,7 @@ const warned = {}
 const missingMessageErrors = {}
 
 /**
+ * 返回给定语言的消息内容
  * Returns a localized message for the given key
  * @param {string} localeCode The code for the current locale
  * @param {object} localeMessages The map of messages for the current locale
@@ -48,6 +49,7 @@ export const getMessage = (localeCode, localeMessages, key, substitutions) => {
   return phrase
 }
 
+// 获取语言文件
 export async function fetchLocale (localeCode) {
   try {
     const response = await fetch(`./_locales/${localeCode}/messages.json`)

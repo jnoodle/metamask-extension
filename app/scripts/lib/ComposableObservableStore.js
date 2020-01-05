@@ -1,6 +1,7 @@
 const ObservableStore = require('obs-store')
 
 /**
+ * 可组合的 obs-store
  * An ObservableStore that can composes a flat
  * structure of child stores based on configuration
  */

@@ -4,11 +4,14 @@ const createAsyncMiddleware = require('json-rpc-engine/src/createAsyncMiddleware
 const { errors: rpcErrors } = require('eth-json-rpc-errors')
 
 /**
+ * 为用户认可的 ETH provider API 请求提供服务
  * A controller that services user-approved requests for a full Ethereum provider API
  */
 class ProviderApprovalController extends SafeEventEmitter {
   /**
    * Creates a ProviderApprovalController
+   *
+   * approvedOrigins 授权的来源
    *
    * @param {Object} [config] - Options to configure controller
    */
@@ -70,6 +73,7 @@ class ProviderApprovalController extends SafeEventEmitter {
   * @param {string} [extensionId] - The extension ID of the extension
   */
   /**
+   * 当标签页请求访问完整的以太坊提供商API时调用
    * Called when a tab requests access to a full Ethereum provider API
    *
    * @param {SiteMetadata} siteMetadata - The metadata for the site requesting full provider access
@@ -93,6 +97,7 @@ class ProviderApprovalController extends SafeEventEmitter {
   }
 
   /**
+   * 当用户批准访问完整的以太坊提供商API时调用
    * Called when a user approves access to a full Ethereum provider API
    *
    * @param {string} origin - origin of the domain that had provider access approved
@@ -121,6 +126,7 @@ class ProviderApprovalController extends SafeEventEmitter {
   }
 
   /**
+   * 当标签拒绝访问完整的以太坊提供商API时调用
    * Called when a tab rejects access to a full Ethereum provider API
    *
    * @param {string} origin - origin of the domain that had provider access approved
@@ -144,6 +150,7 @@ class ProviderApprovalController extends SafeEventEmitter {
   }
 
   /**
+   * 清除用户批准的所有 origins
    * Clears any approvals for user-approved origins
    */
   clearApprovedOrigins () {

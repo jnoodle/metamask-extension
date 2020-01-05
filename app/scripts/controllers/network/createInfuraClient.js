@@ -16,6 +16,7 @@ module.exports = createInfuraClient
 //  a tool for processing JSON RPC
 
 /**
+ * 创建 Infura API Client https://infura.io/
  * createInfuraClient
  * @param network
  * @param onRequest

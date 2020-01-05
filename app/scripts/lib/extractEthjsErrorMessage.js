@@ -5,6 +5,7 @@ module.exports = extractEthjsErrorMessage
 
 
 /**
+ * 提取 ethjs-rpc 里可读的错误信息
  * Extracts the important part of an ethjs-rpc error message. If the passed error is not an isEthjsRpcError, the error
  * is returned unchanged.
  *

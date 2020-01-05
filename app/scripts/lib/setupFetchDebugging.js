@@ -6,6 +6,7 @@ module.exports = setupFetchDebugging
 // https://github.com/getsentry/sentry-javascript/pull/1293
 //
 
+// 对 fetch 进行封装，抛错时附带上下文和堆栈
 function setupFetchDebugging () {
   if (!global.fetch) return
   const originalFetch = global.fetch

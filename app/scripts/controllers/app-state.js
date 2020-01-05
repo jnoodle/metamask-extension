@@ -1,6 +1,7 @@
 const ObservableStore = require('obs-store')
 const extend = require('xtend')
 
+// 设置 app 激活，非激活，超时之类的
 class AppStateController {
   /**
    * @constructor

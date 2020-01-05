@@ -7,7 +7,8 @@ const extend = require('xtend')
 class PreferencesController {
 
   /**
-   *
+   * 用户首选项设置
+   * 里面是一大堆属性和这些属性的 getter，setter
    * @typedef {Object} PreferencesController
    * @param {object} opts Overrides the defaults for the initial state of this.store
    * @property {object} store The stored object containing a users preferences, stored in local storage
@@ -20,7 +21,7 @@ class PreferencesController {
    * @property {boolean} store.useNonceField The users preference for nonce field within the UI
    * @property {object} store.featureFlags A key-boolean map, where keys refer to features and booleans to whether the
    * user wishes to see that feature.
-   *
+   * 可以通过全局方法 setPreference(feature, enabled) 设置，所以不要在 featureFlags 设置安全敏感的属性
    * Feature flags can be set by the global function `setPreference(feature, enabled)`, and so should not expose any sensitive behavior.
    * @property {object} store.knownMethodData Contains all data methods known by the user
    * @property {string} store.currentLocale The preferred language locale key
@@ -28,8 +29,9 @@ class PreferencesController {
    *
    */
   constructor (opts = {}) {
+    // 初始首选项
     const initState = extend({
-      frequentRpcListDetail: [],
+      frequentRpcListDetail: [], // 用户自定义 rpc 列表
       currentAccountTab: 'history',
       accountTokens: {},
       assetImages: {},
@@ -42,6 +44,7 @@ class PreferencesController {
       // Feature flag toggling is available in the global namespace
       // for convenient testing of pre-release features, and should never
       // perform sensitive operations.
+      // 不要在这里设置安全敏感的属性
       featureFlags: {
         showIncomingTransactions: true,
       },

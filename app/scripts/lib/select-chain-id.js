@@ -14,6 +14,7 @@ const standardNetworkId = {
   '5': GOERLI_CHAIN_ID,
 }
 
+// 获取 chainId（1，3，4，42，5）
 function selectChainId (metamaskState) {
   const { network, provider: { chaindId } } = metamaskState
   return standardNetworkId[network] || `0x${parseInt(chaindId, 10).toString(16)}`

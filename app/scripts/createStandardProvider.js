@@ -35,6 +35,7 @@ class StandardProvider {
   }
 
   /**
+   * sendAsync 转换成标准的 send
    * Initiate an RPC method call
    *
    * @param {string} method - RPC method name to call
@@ -56,6 +57,7 @@ class StandardProvider {
 }
 
 /**
+ * 将传统 provider 转换为符合 EIP-1193 的 provider
  * Converts a legacy provider into an EIP-1193-compliant standard provider
  * @param {Object} provider - Legacy provider to convert
  * @returns {Object} Standard provider

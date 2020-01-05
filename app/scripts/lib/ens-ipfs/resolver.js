@@ -3,11 +3,16 @@ const Eth = require('ethjs-query')
 const EthContract = require('ethjs-contract')
 const registryAbi = require('./contracts/registry')
 const resolverAbi = require('./contracts/resolver')
+// simple tool to encode/decode content hash for EIP 1577 compliant ENS Resolvers
 const contentHash = require('content-hash')
 
 module.exports = resolveEnsToIpfsContentId
 
+// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1577.md
+// https://medium.com/the-ethereum-name-service/ethdns-9d56298fa38a
+// 先要了解 EIP1577 标准
 
+// ENS to IPFS contentId
 async function resolveEnsToIpfsContentId ({ provider, name }) {
   const eth = new Eth(provider)
   const hash = namehash.hash(name)
@@ -52,6 +57,7 @@ function hexValueIsEmpty (value) {
   return [undefined, null, '0x', '0x0', '0x0000000000000000000000000000000000000000000000000000000000000000'].includes(value)
 }
 
+// The Ethereum Name Service registry address
 function getRegistryForChainId (chainId) {
   switch (chainId) {
     // mainnet

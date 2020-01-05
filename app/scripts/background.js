@@ -1,4 +1,5 @@
 /**
+ * Web扩展单例过程的入口点
  * @file The entry point for the web extension singleton process.
  */
 
@@ -40,6 +41,7 @@ const {
   ENVIRONMENT_TYPE_FULLSCREEN,
 } = require('./lib/enums')
 
+// 用于 e2e 测试
 // METAMASK_TEST_CONFIG is used in e2e tests to set the default network to localhost
 const firstTimeState = Object.assign({}, rawFirstTimeState, global.METAMASK_TEST_CONFIG)
 
@@ -77,6 +79,8 @@ const { submitMeshMetricsEntry } = setupMetamaskMeshMetrics()
 
 
 /**
+ * TransactionMeta 代表一个交易
+ *
  * An object representing a transaction, in whatever state it is in.
  * @typedef TransactionMeta
  *
@@ -98,6 +102,9 @@ const { submitMeshMetricsEntry } = setupMetamaskMeshMetrics()
  */
 
 /**
+ * MetaMaskState 从MetaMaskController.store EventEmitter发出的数据，
+ * 也用于初始化MetaMaskController。在UI上的React状态中可以作为 state.metamask 使用
+ *
  * The data emitted from the MetaMaskController.store EventEmitter, also used to initialize the MetaMaskController. Available in UI on React state as state.metamask.
  * @typedef MetaMaskState
  * @property {boolean} isInitialized - Whether the first vault has been created.
@@ -146,12 +153,15 @@ const { submitMeshMetricsEntry } = setupMetamaskMeshMetrics()
  */
 
 /**
+ * VersionedData 版本信息
  * @typedef VersionedData
  * @property {MetaMaskState} data - The data emitted from MetaMask controller, or used to initialize it.
  * @property {Number} version - The latest migration version that has been run.
  */
 
 /**
+ * 初始化MetaMask控制器，并设置所有平台配置。
+
  * Initializes the MetaMask controller, and sets up all platform configuration.
  * @returns {Promise} Setup complete.
  */
@@ -167,6 +177,7 @@ async function initialize () {
 //
 
 /**
+ * 加载存储的数据
  * Loads any stored data, prioritizing the latest storage strategy.
  * Migrates that data schema in case it was last loaded on an older version.
  * @returns {Promise<MetaMaskState>} Last data emitted from previous instance of MetaMask.
@@ -175,6 +186,7 @@ async function loadStateFromPersistence () {
   // migrations
   const migrator = new Migrator({ migrations })
 
+  // 先从本地读取，没有则初始化生成
   // read from disk
   // first from preferred, async API:
   versionedData = (await localStore.get()) ||
@@ -221,6 +233,7 @@ async function loadStateFromPersistence () {
 }
 
 /**
+ * 使用初始状态和默认语言来初始化 MetaMask Controller
  * Initializes the MetaMask Controller with any initial state and default language.
  * Configures platform-specific error reporting strategy.
  * Streams emitted state updates to platform-specific storage strategy.
@@ -281,6 +294,7 @@ function setupController (initState, initLangCode) {
   )
 
   /**
+   * 将给定状态分配给版本对象
    * Assigns the given state to the versioned object (with metadata), and returns that.
    * @param {Object} state - The state object as emitted by the MetaMaskController.
    * @returns {VersionedData} The state object wrapped in an object that includes a metadata key.
@@ -290,6 +304,7 @@ function setupController (initState, initLangCode) {
     return versionedData
   }
 
+  // 持久化 state 到 localStore
   async function persistData (state) {
     if (!state) {
       throw new Error('MetaMask - updated state is missing', state)
@@ -323,11 +338,13 @@ function setupController (initState, initLangCode) {
     'trezor-connect',
   ]
 
+  // 客户端是否开启
   const isClientOpenStatus = () => {
     return popupIsOpen || Boolean(Object.keys(openMetamaskTabsIDs).length) || notificationIsOpen
   }
 
   /**
+   * runtime.Port extension 长连接通信
    * A runtime.Port object, as provided by the browser:
    * @see https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/runtime/Port
    * @typedef Port
@@ -347,6 +364,7 @@ function setupController (initState, initLangCode) {
       return false
     }
 
+    // 如果是内部进程，设置授信的通信
     if (isMetaMaskInternalProcess) {
       const portStream = new PortStream(remotePort)
       // communication with popup
@@ -388,6 +406,7 @@ function setupController (initState, initLangCode) {
     }
   }
 
+  // 与页面或其他扩展程序通信
   // communication with page or other extension
   function connectExternal (remotePort) {
     const senderUrl = new URL(remotePort.sender.url)
@@ -411,6 +430,8 @@ function setupController (initState, initLangCode) {
   controller.providerApprovalController.memStore.on('update', updateBadge)
 
   /**
+   * 更新工具栏中的扩展图标的 badge
+   * 该数字表示需要用户批准的当前待处理交易或消息签名的数量
    * Updates the Web Extension's "badge" number, on the little fox in the toolbar.
    * The number reflects the current number of pending transactions or message signatures needing user approval.
    */
@@ -437,6 +458,7 @@ function setupController (initState, initLangCode) {
 //
 
 /**
+ * 打开浏览器弹出窗口以供用户确认
  * Opens the browser popup for user confirmation
  */
 function triggerUi () {
@@ -450,6 +472,7 @@ function triggerUi () {
 }
 
 /**
+ * 打开浏览器弹出窗口以供用户确认，等待用户交互
  * Opens the browser popup for user confirmation of watchAsset
  * then it waits until user interact with the UI
  */
@@ -467,6 +490,7 @@ function openPopup () {
   )
 }
 
+// 首次安装，打开一个标签页
 // On first install, open a new tab with MetaMask
 extension.runtime.onInstalled.addListener(({reason}) => {
   if ((reason === 'install') && (!METAMASK_DEBUG)) {

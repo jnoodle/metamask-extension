@@ -16,6 +16,8 @@ const INFURA_PROVIDER_TYPES = [ROPSTEN, RINKEBY, KOVAN, MAINNET, GOERLI]
 class RecentBlocksController {
 
   /**
+   * 负责存储，更新和管理最近的 block
+   *
    * Controller responsible for storing, updating and managing the recent history of blocks. Blocks are back filled
    * upon the controller's construction and then the list is updated when the given block tracker gets a 'latest' event
    * (indicating that there is a new block to process).
@@ -39,7 +41,7 @@ class RecentBlocksController {
     this.historyLength = opts.historyLength || 40
 
     const initState = extend({
-      recentBlocks: [],
+      recentBlocks: [], // recentBlocks 所有最新 block，数量和 historyLength 一致
     }, opts.initState)
     this.store = new ObservableStore(initState)
     const blockListner = async (newBlockNumberHex) => {
@@ -81,6 +83,7 @@ class RecentBlocksController {
   }
 
   /**
+   * 拿到最新区块，先处理，然后扔到 recentBlocks 里，从右填充，如果 recentBlocks 满了，把最旧的删除
    * Receives a new block and modifies it with this.mapTransactionsToPrices. Then adds that block to the recentBlocks
    * array in storage. If the recentBlocks array contains the maximum number of blocks, the oldest block is removed.
    *
@@ -105,6 +108,7 @@ class RecentBlocksController {
   }
 
   /**
+   * 如果 recentBlocks 长度不够，用 block 填充，从左填充
    * Receives a new block and modifies it with this.mapTransactionsToPrices. Adds that block to the recentBlocks
    * array in storage, but only if the recentBlocks array contains fewer than the maximum permitted.
    *
@@ -126,6 +130,7 @@ class RecentBlocksController {
   }
 
   /**
+   * 只关心每个 tx 的 gasPrice，其他的删掉
    * Receives a block and gets the gasPrice of each of its transactions. These gas prices are added to the block at a
    * new property, and the block's transactions are removed.
    *
@@ -144,6 +149,7 @@ class RecentBlocksController {
   }
 
   /**
+   * 从旧到新排列
    * On this.blockTracker's first 'latest' event after this RecentBlocksController's instantiation, the store.recentBlocks
    * array is populated with this.historyLength number of blocks. The block number of the this.blockTracker's first
    * 'latest' event is used to iteratively generate all the numbers of the previous blocks, which are obtained by querying
@@ -173,6 +179,7 @@ class RecentBlocksController {
   }
 
   /**
+   * 返回指定 number 的 block
    * Uses EthQuery to get a block that has a given block number.
    *
    * @param {number} number The number of the block to get
@@ -181,6 +188,8 @@ class RecentBlocksController {
    */
   async getBlockByNumber (number) {
     const blockNumberHex = '0x' + number.toString(16)
+    // pify - Promisify a callback-style function
+    // https://github.com/sindresorhus/pify
     return await pify(this.ethQuery.getBlockByNumber).call(this.ethQuery, blockNumberHex, true)
   }
 

@@ -1,6 +1,7 @@
 const KeyringController = require('eth-keyring-controller')
 const log = require('loglevel')
 
+// 验证助记词是否可以还原帐户
 const seedPhraseVerifier = {
 
   /**

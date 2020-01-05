@@ -12,6 +12,7 @@ const extend = require('xtend')
  */
 
 /**
+ * 设置用户是否已完成种子短语备份挑战 seedPhraseBackedUp: t/f
  * Controller responsible for maintaining
  * a cache of account balances in local storage
  */

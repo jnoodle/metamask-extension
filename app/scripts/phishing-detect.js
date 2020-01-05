@@ -9,6 +9,8 @@ const ExtensionPlatform = require('./platforms/extension')
 
 document.addEventListener('DOMContentLoaded', start)
 
+// 检测钓鱼网站
+// 通过 https://etherscamdb.info
 function start () {
   const windowType = getEnvironmentType(window.location.href)
   const hash = window.location.hash.substring(1)

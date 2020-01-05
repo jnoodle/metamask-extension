@@ -7,6 +7,7 @@ const SENTRY_DSN_DEV = 'https://f59f3dd640d2429d9d0e2445a87ea8e1@sentry.io/27349
 module.exports = setupSentry
 
 // Setup sentry remote error reporting
+// 设置 sentry 远程错误报告
 function setupSentry (opts) {
   const { release, getState } = opts
   let sentryTarget

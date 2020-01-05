@@ -27,6 +27,9 @@ const fetch = fetchWithTimeout({
   timeout: 30000,
 })
 
+
+// 处理收入交易
+// preferencesController: 用户首选项, 参考 preferences.js
 class IncomingTransactionsController {
 
   constructor (opts = {}) {
@@ -90,6 +93,7 @@ class IncomingTransactionsController {
       })
     }))
 
+    // 网络切换
     this.networkController.on('networkDidChange', async (newType) => {
       const address = this.preferencesController.getSelectedAddress()
       await this._update({
@@ -179,6 +183,7 @@ class IncomingTransactionsController {
     return this._processTxFetchResponse(fetchedTxResponse)
   }
 
+  // 通过 etherscan.io 获取最新 tx
   async _fetchTxs (address, fromBlock, networkType) {
     let etherscanSubdomain = 'api'
     const currentNetworkID = networkTypeToIdMap[networkType]
@@ -207,6 +212,7 @@ class IncomingTransactionsController {
     }
   }
 
+  // 处理 fetch tx 返回结果
   _processTxFetchResponse ({ status, result = [], address, currentNetworkID }) {
     if (status !== '0' && result.length > 0) {
       const remoteTxList = {}
@@ -218,6 +224,7 @@ class IncomingTransactionsController {
         }
       })
 
+      // 只关心收入交易 to === address，并按时间排序
       const incomingTxs = remoteTxs.filter(tx => tx.txParams.to && tx.txParams.to.toLowerCase() === address.toLowerCase())
       incomingTxs.sort((a, b) => (a.time < b.time ? -1 : 1))
 
@@ -242,6 +249,7 @@ class IncomingTransactionsController {
     }
   }
 
+  // 格式化 tx
   _normalizeTxFromEtherscan (txMeta, currentNetworkID) {
     const time = parseInt(txMeta.timeStamp, 10) * 1000
     const status = txMeta.isError === '0' ? 'confirmed' : 'failed'
@@ -267,6 +275,9 @@ class IncomingTransactionsController {
 
 module.exports = IncomingTransactionsController
 
+
+// pairwise 每次会缓存上一次的值
+// 每次只需要传入 currState，就可以实现 fn(prevState, currState)
 function pairwise (fn) {
   let first = true
   let cache

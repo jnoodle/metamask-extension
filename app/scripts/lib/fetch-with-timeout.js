@@ -1,3 +1,4 @@
+// 带超时中断的 fetch
 const fetchWithTimeout = ({ timeout = 120000 } = {}) => {
   return async function _fetch (url, opts) {
     const abortController = new AbortController()

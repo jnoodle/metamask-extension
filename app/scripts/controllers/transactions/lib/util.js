@@ -16,6 +16,7 @@ module.exports = {
 
 
 // functions that handle normalizing of that key in txParams
+// 对 txParams 的一些格式化处理
 const normalizers = {
   from: (from, LowerCase = true) => LowerCase ? addHexPrefix(from).toLowerCase() : addHexPrefix(from),
   to: (to, LowerCase = true) => LowerCase ? addHexPrefix(to).toLowerCase() : addHexPrefix(to),
@@ -27,7 +28,7 @@ const normalizers = {
 }
 
 /**
-  normalizes txParams
+  normalizes txParams 格式化 txParams
   @param txParams {object}
   @returns {object} normalized txParams
  */
@@ -41,7 +42,7 @@ function normalizeTxParams (txParams, LowerCase) {
 }
 
 /**
-  validates txParams
+  validates txParams 验证 txParams
   @param txParams {object}
  */
 function validateTxParams (txParams) {
@@ -61,6 +62,7 @@ function validateTxParams (txParams) {
 
 /**
   validates the from field in  txParams
+  from 字段验证
   @param txParams {object}
  */
 function validateFrom (txParams) {
@@ -70,6 +72,7 @@ function validateFrom (txParams) {
 
 /**
   validates the to field in  txParams
+  to 字段验证
   @param txParams {object}
  */
 function validateRecipient (txParams) {
@@ -86,14 +89,15 @@ function validateRecipient (txParams) {
 }
 
 /**
+    返回可以被认定为最终态的状态
     @returns an {array} of states that can be considered final
   */
 function getFinalStates () {
   return [
-    'rejected', // the user has responded no!
-    'confirmed', // the tx has been included in a block.
-    'failed', // the tx failed for some reason, included on tx data.
-    'dropped', // the tx nonce was already used
+    'rejected', // the user has responded no! 用户拒绝
+    'confirmed', // the tx has been included in a block. 已确认
+    'failed', // the tx failed for some reason, included on tx data. 交易失败
+    'dropped', // the tx nonce was already used nonce已经被使用
   ]
 }
 

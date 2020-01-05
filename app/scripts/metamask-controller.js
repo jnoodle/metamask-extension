@@ -1,4 +1,5 @@
 /**
+ * MetaMask Controller 聚合其他控制器并导出api
  * @file      The central metamask controller. Aggregates other controllers and exports an api.
  * @copyright Copyright (c) 2018 MetaMask
  * @license   MIT
@@ -56,6 +57,8 @@ const LedgerBridgeKeyring = require('eth-ledger-bridge-keyring')
 const EthQuery = require('eth-query')
 const ethUtil = require('ethereumjs-util')
 const contractMap = require('eth-contract-metadata')
+// https://github.com/MetaMask/gaba
+// 平台无关模块的集合，用于为加密货币钱包创建安全的数据模型
 const {
   AddressBookController,
   CurrencyRateController,
@@ -91,6 +94,7 @@ module.exports = class MetamaskController extends EventEmitter {
     this.store = new ComposableObservableStore(initState)
 
     // lock to ensure only one vault created at once
+    // 保证一次只有一个 vault 创建
     this.createVaultMutex = new Mutex()
 
     // network store
@@ -152,6 +156,7 @@ module.exports = class MetamaskController extends EventEmitter {
       network: this.networkController,
     })
 
+    // activeControllerConnections > 0 开始查余额，否则停止
     // start and stop polling for balances based on activeControllerConnections
     this.on('controllerConnectionChanged', (activeControllerConnections) => {
       if (activeControllerConnections > 0) {
@@ -330,6 +335,7 @@ module.exports = class MetamaskController extends EventEmitter {
       },
       version,
       // account mgmt
+      // 解锁时才显示账户
       getAccounts: async ({ origin }) => {
         // Expose no accounts if this origin has not been approved, preventing
         // account-requring RPC methods from completing successfully
@@ -359,6 +365,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 把一些公共配置同步给 dapp，如 isUnlocked, selectedAddress, network, completedOnboarding, provider
    * Constructor helper: initialize a public config store.
    * This store is used to make some config info available to Dapps synchronously.
    */
@@ -401,6 +408,7 @@ module.exports = class MetamaskController extends EventEmitter {
   //=============================================================================
 
   /**
+   * UI 可以使用的 state
    * The metamask-state of the various controllers, made available to the UI
    *
    * @returns {Object} status
@@ -416,6 +424,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * UI 可以调用的 API
    * Returns an Object containing API Callback Functions.
    * These functions are the interface for the UI.
    * The API object can be transmitted over a stream with dnode.
@@ -477,7 +486,7 @@ module.exports = class MetamaskController extends EventEmitter {
       updateAndSetCustomRpc: nodeify(this.updateAndSetCustomRpc, this),
       delCustomRpc: nodeify(this.delCustomRpc, this),
 
-      // PreferencesController
+      // PreferencesController 相关方法
       setSelectedAddress: nodeify(preferencesController.setSelectedAddress, preferencesController),
       addToken: nodeify(preferencesController.addToken, preferencesController),
       removeToken: nodeify(preferencesController.removeToken, preferencesController),
@@ -494,13 +503,16 @@ module.exports = class MetamaskController extends EventEmitter {
       whitelistPhishingDomain: this.whitelistPhishingDomain.bind(this),
 
       // AddressController
+      // https://github.com/MetaMask/gaba#addressbookcontroller
       setAddressBook: nodeify(this.addressBookController.set, this.addressBookController),
       removeFromAddressBook: this.addressBookController.delete.bind(this.addressBookController),
 
       // AppStateController
+      // 将上次激活时间设置为当前时间
       setLastActiveTime: nodeify(this.appStateController.setLastActiveTime, this.appStateController),
 
       // KeyringController
+      // https://github.com/tsirysndr/eth-keyring-controller
       setLocked: nodeify(this.setLocked, this),
       createNewVaultAndKeychain: nodeify(this.createNewVaultAndKeychain, this),
       createNewVaultAndRestore: nodeify(this.createNewVaultAndRestore, this),
@@ -540,7 +552,7 @@ module.exports = class MetamaskController extends EventEmitter {
       // onboarding controller
       setSeedPhraseBackedUp: nodeify(onboardingController.setSeedPhraseBackedUp, onboardingController),
 
-      // 3Box
+      // 3Box https://github.com/3box/3box-js
       setThreeBoxSyncingPermission: nodeify(threeBoxController.setThreeBoxSyncingPermission, threeBoxController),
       restoreFromThreeBox: nodeify(threeBoxController.restoreFromThreeBox, threeBoxController),
       setShowRestorePromptToFalse: nodeify(threeBoxController.setShowRestorePromptToFalse, threeBoxController),
@@ -559,6 +571,7 @@ module.exports = class MetamaskController extends EventEmitter {
   //=============================================================================
 
   /**
+   * 创建一个新的 vault 并创建一个新的钥匙串
    * Creates a new Vault and create a new keychain.
    *
    * A vault, or KeyringController, is a controller that contains
@@ -594,6 +607,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 创建一个新的 vault 并还原现有的 keyring
    * Create a new Vault and restore an existent keyring.
    * @param  {} password
    * @param  {} seed
@@ -638,6 +652,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 从 AccountTracker 获取帐户余额，或直接从网络请求
    * Get an account balance from the AccountTracker or request it directly from the network.
    * @param {string} address - The account address
    * @param {EthQuery} ethQuery - The EthQuery instance to use when asking the network
@@ -662,6 +677,9 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 收集我们要与移动客户端共享的所有信息用于同步
+   * accounts、preferences、transactions、network
+   *
    * Collects all the information that we want to share
    * with the mobile client for syncing purposes
    * @returns Promise<Object> Parts of the state that we want to syncx
@@ -731,7 +749,8 @@ module.exports = class MetamaskController extends EventEmitter {
     }
   }
 
-  /*
+  /**
+   * 提交用户密码并尝试解锁 vault
    * Submits the user's password and attempts to unlock the vault.
    * Also synchronizes the preferencesController, to ensure its schema
    * is up to date with known accounts once the vault is decrypted.
@@ -769,6 +788,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 用户身份
    * @type Identity
    * @property {string} name - The account nickname.
    * @property {string} address - The account's ethereum address, in lower case.
@@ -777,6 +797,7 @@ module.exports = class MetamaskController extends EventEmitter {
    */
 
   /**
+   * 将 state 中的第一个地址设置为所选地址
    * Sets the first address in the state to the selected address
    */
   selectFirstIdentity () {
@@ -785,7 +806,8 @@ module.exports = class MetamaskController extends EventEmitter {
     this.preferencesController.setSelectedAddress(address)
   }
 
-  //
+  // 获取硬件钱包 keyring
+  // https://github.com/MetaMask/eth-simple-keyring#the-keyring-class-protocol
   // Hardware
   //
 
@@ -816,6 +838,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 从 trezor 设备获取帐户列表
    * Fetch account list from a trezor device.
    *
    * @returns [] accounts
@@ -843,6 +866,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 检查设备是否已解锁
    * Check if the device is unlocked
    *
    * @returns {Promise<boolean>}
@@ -853,6 +877,8 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 从内存中删除所有设备信息
+   * 因此与keyring的下一次交互将提示用户连接TREZOR设备并导出帐户信息
    * Clear
    *
    * @returns {Promise<boolean>}
@@ -865,6 +891,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 从 trezor 设备导入帐户
    * Imports an account from a trezor device.
    *
    * @returns {} keyState
@@ -896,6 +923,7 @@ module.exports = class MetamaskController extends EventEmitter {
   //
 
   /**
+   * 将新帐户添加到默认（第一个）HD 助记词
    * Adds a new account to the default (first) HD seed phrase Keyring.
    *
    * @returns {} keyState
@@ -924,6 +952,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 验证助记词的有效性
    * Verifies the validity of the current vault's seed phrase.
    *
    * Validity: seed phrase restores the accounts belonging to the current vault.
@@ -957,6 +986,8 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 清除交易历史记录，以允许用户强制重置其随机数
+   * 通常用在开发环境中
    * Clears the transaction history, to allow users to force-reset their nonces.
    * Mostly used in development environments, when networks are restarted with
    * the same network ID.
@@ -972,6 +1003,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 从状态/存储中删除帐户
    * Removes an account from state / storage.
    *
    * @param {string[]} address A hex address
@@ -990,6 +1022,9 @@ module.exports = class MetamaskController extends EventEmitter {
 
 
   /**
+   * 导入具有指定导入策略的帐户
+   * 比如：Private Key、JSON File
+   * 每种策略都代表一种不同的序列化以太坊密钥对的方式
    * Imports an account with the specified import strategy.
    * These are defined in app/scripts/account-import-strategies
    * Each strategy represents a different way of serializing an Ethereum key pair.
@@ -1011,8 +1046,10 @@ module.exports = class MetamaskController extends EventEmitter {
 
   // ---------------------------------------------------------------------------
   // Identity Management (signature operations)
+  // 身份管理（签名操作）
 
   /**
+   * 当 Dapp 建议签署新的 TX 时调用
    * Called when a Dapp suggests a new tx to be signed.
    * this wrapper needs to exist so we can provide a reference to
    *  "newUnapprovedTransaction" before "txController" is instantiated
@@ -1027,6 +1064,8 @@ module.exports = class MetamaskController extends EventEmitter {
   // eth_sign methods:
 
   /**
+   * 当 Dapp 使用 eth_sign 方法来请求用户批准时调用
+   * eth_sign 已过时
    * Called when a Dapp uses the eth_sign method, to request user approval.
    * eth_sign is a pure signature of arbitrary data. It is on a deprecation
    * path, since this data can be a transaction, or can leak private key
@@ -1043,6 +1082,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 表示用户打算完成 eth_sign 方法
    * Signifies user intent to complete an eth_sign method.
    *
    * @param  {Object} msgParams The params passed to eth_call.
@@ -1068,6 +1108,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 用于取消通过 eth_sign 提交的消息
    * Used to cancel a message submitted via eth_sign.
    *
    * @param {string} msgId - The id of the message to cancel.
@@ -1083,6 +1124,7 @@ module.exports = class MetamaskController extends EventEmitter {
   // personal_sign methods:
 
   /**
+   * 当 dapp 使用 personal_sign 方法时调用
    * Called when a dapp uses the personal_sign method.
    * This is identical to the Geth eth_sign method, and may eventually replace
    * eth_sign.
@@ -1101,6 +1143,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 表示用户同意在队列中签名 personal_sign 消息
    * Signifies a user's approval to sign a personal_sign message in queue.
    * Triggers signing, and the callback function from newUnsignedPersonalMessage.
    *
@@ -1126,6 +1169,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 用于取消 personal_sign 类型的消息
    * Used to cancel a personal_sign type message.
    * @param {string} msgId - The ID of the message to cancel.
    * @param {Function} cb - The callback function called with a full state update.
@@ -1141,6 +1185,7 @@ module.exports = class MetamaskController extends EventEmitter {
   // eth_signTypedData methods
 
   /**
+   * 根据EIP 712，在 dapp 使用 eth_signTypedData 方法时调用
    * Called when a dapp uses the eth_signTypedData method, per EIP 712.
    *
    * @param {Object} msgParams - The params passed to eth_signTypedData.
@@ -1154,6 +1199,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 用户根据EIP 712批准对 eth_signTypedData 的调用的方法
    * The method for a user approving a call to eth_signTypedData, per EIP 712.
    * Triggers the callback in newUnsignedTypedMessage.
    *
@@ -1185,6 +1231,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 用于取消 eth_signTypedData 类型的消息
    * Used to cancel a eth_signTypedData type message.
    * @param {string} msgId - The ID of the message to cancel.
    * @param {Function} cb - The callback function called with a full state update.
@@ -1240,6 +1287,7 @@ module.exports = class MetamaskController extends EventEmitter {
   //=============================================================================
 
   /**
+   * 允许用户通过使用更高的gas重试来加快交易速度
    * Allows a user to try to speed up a transaction by retrying it
    * with higher gas.
    *
@@ -1252,6 +1300,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 允许用户尝试通过创建新交易来取消先前提交的交易
    * Allows a user to attempt to cancel a previously submitted transaction by creating a new
    * transaction.
    * @param {number} originalTxId - the id of the txMeta that you want to attempt to cancel
@@ -1268,12 +1317,14 @@ module.exports = class MetamaskController extends EventEmitter {
     }
   }
 
+  // 使用大 gasPrice 加快交易
   async createSpeedUpTransaction (originalTxId, customGasPrice) {
     await this.txController.createSpeedUpTransaction(originalTxId, customGasPrice)
     const state = await this.getState()
     return state
   }
 
+  // 估算 gas 通过 eth_estimateGas 接口
   estimateGas (estimateGasParams) {
     return new Promise((resolve, reject) => {
       return this.txController.txGasUtil.query.estimateGas(estimateGasParams, (err, res) => {
@@ -1291,6 +1342,7 @@ module.exports = class MetamaskController extends EventEmitter {
   //=============================================================================
 
   /**
+   * 允许用户开始用助记词恢复钱包
    * Allows a user to begin the seed phrase recovery process.
    * @param {Function} cb - A callback function called when complete.
    */
@@ -1301,6 +1353,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 允许用户结束助记词恢复过程
    * Allows a user to end the seed phrase recovery process.
    * @param {Function} cb - A callback function called when complete.
    */
@@ -1315,6 +1368,7 @@ module.exports = class MetamaskController extends EventEmitter {
   //=============================================================================
 
   /**
+   * 用于创建复用流以连接到不受信任的上下文，比如 Dapp 或其他扩展程序
    * Used to create a multiplexed stream for connecting to an untrusted context
    * like a Dapp or other extension.
    * @param {*} connectionStream - The Duplex stream to connect to.
@@ -1340,6 +1394,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 用于创建用于连接到可信上下文的多路复用流
    * Used to create a multiplexed stream for connecting to a trusted context,
    * like our own user interfaces, which have the provider APIs, but also
    * receive the exported API from this controller, which includes trusted
@@ -1358,6 +1413,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 当检测到可疑域时调用。请求浏览器重定向，转到反网络钓鱼页面。
    * Called when we detect a suspicious domain. Requests the browser redirects
    * to our anti-phishing page.
    *
@@ -1373,11 +1429,13 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 使用 Dnode 通过流提供我们的API
    * A method for providing our API over a stream using Dnode.
    * @param {*} outStream - The stream to provide our API over.
    */
   setupControllerConnection (outStream) {
     const api = this.getApi()
+    // 用 dnode 包装
     const dnode = Dnode(api)
     // report new active controller connection
     this.activeControllerConnections++
@@ -1405,6 +1463,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 通过给定流为我们的以太坊 provider 提供服务
    * A method for serving our ethereum provider over a given stream.
    * @param {*} outStream - The stream to provide over.
    * @param {URL} senderUrl - The URI of the requesting resource.
@@ -1436,6 +1495,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 创建 provider，该 provider 在请求域中受到安全限制
    * A method for creating a provider that is safely restricted for the requesting domain.
    **/
   setupProviderEngine (senderUrl, extensionId, getSiteMetadata) {
@@ -1472,6 +1532,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 通过流提供我们的公共配置信息
    * A method for providing our public config info over a stream.
    * This includes info we like to be synchronous if possible, like
    * the current selected account, and network ID.
@@ -1501,6 +1562,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 通过流提供我们的公共api
    * A method for providing our public api over a stream.
    * This includes a method for setting site metadata like title and image
    *
@@ -1533,6 +1595,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 处理 KeyringController 更新
    * Handle a KeyringController update
    * @param {object} state the KC state
    * @return {Promise<void>}
@@ -1561,6 +1624,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 向所有注册的侦听器发出完整的 MetaMask 状态
    * A method for emitting the full MetaMask state to all registered listeners.
    * @private
    */
@@ -1569,6 +1633,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 以最近的 gas price 估算合适的 gas price
    * A method for estimating a good gas price at recent prices.
    * Returns the lowest price that would have been included in
    * 50% of recent blocks.
@@ -1603,6 +1668,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 返回批准后的交易关联的 nonce
    * Returns the nonce that will be associated with a transaction once approved
    * @param address {string} - The hex string address for the transaction
    * @returns Promise<number>
@@ -1616,6 +1682,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 根据随机数跟踪器返回下一个随机数
    * Returns the next nonce according to the nonce-tracker
    * @param address {string} - The hex string address for the transaction
    * @returns Promise<number>
@@ -1637,6 +1704,7 @@ module.exports = class MetamaskController extends EventEmitter {
   // Log blocks
 
   /**
+   * 设置用户首选显示货币
    * A method for setting the user's preferred display currency.
    * @param {string} currencyCode - The code of the preferred currency.
    * @param {Function} cb - A callback function returning currency info.
@@ -1657,6 +1725,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 将用户引导到获取以太币的地址
    * A method for forwarding the user to the easiest way to obtain ether,
    * or the network "gas" currency, for the current selected network.
    *
@@ -1671,6 +1740,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 触发货币转换 https://shapeshift.io/
    * A method for triggering a shapeshift currency transfer.
    * @param {string} depositAddress - The address to deposit to.
    * @property {string} depositType - An abbreviation of the type of crypto currency to be deposited.
@@ -1681,6 +1751,7 @@ module.exports = class MetamaskController extends EventEmitter {
 
   // network
   /**
+   * 选择以太坊RPC提供程序的自定义URL并更新它
    * A method for selecting a custom URL for an ethereum RPC provider and updating it
    * @param {string} rpcUrl - A URL for a valid Ethereum RPC API.
    * @param {number} chainId - The chainId of the selected network.
@@ -1697,6 +1768,7 @@ module.exports = class MetamaskController extends EventEmitter {
 
 
   /**
+   * 为以太坊RPC提供程序选择自定义URL
    * A method for selecting a custom URL for an ethereum RPC provider.
    * @param {string} rpcTarget - A URL for a valid Ethereum RPC API.
    * @param {number} chainId - The chainId of the selected network.
@@ -1718,6 +1790,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 删除所选的自定义网址
    * A method for deleting a selected custom URL.
    * @param {string} rpcTarget - A RPC URL to delete.
    */
@@ -1725,11 +1798,13 @@ module.exports = class MetamaskController extends EventEmitter {
     await this.preferencesController.removeFromFrequentRpcList(rpcTarget)
   }
 
+  // 初始化 3box Controller
   async initializeThreeBox () {
     await this.threeBoxController.init()
   }
 
   /**
+   * 设置是否使用块状标识图标格式
    * Sets whether or not to use the blockie identicon format.
    * @param {boolean} val - True for bockie, false for jazzicon.
    * @param {Function} cb - A callback function called when complete.
@@ -1744,6 +1819,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 设置是否使用 nonce 字段
    * Sets whether or not to use the nonce field.
    * @param {boolean} val - True for nonce field, false for not nonce field.
    * @param {Function} cb - A callback function called when complete.
@@ -1758,6 +1834,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 设置用户是否使用 MetaMetrics 跟踪使用情况数据
    * Sets whether or not the user will have usage data tracked with MetaMetrics
    * @param {boolean} bool - True for users that wish to opt-in, false for users that wish to remain out.
    * @param {Function} cb - A callback function called when complete.
@@ -1771,6 +1848,7 @@ module.exports = class MetamaskController extends EventEmitter {
     }
   }
 
+  // 设置 metaMetricsSendCount
   setMetaMetricsSendCount (val, cb) {
     try {
       this.preferencesController.setMetaMetricsSendCount(val)
@@ -1781,6 +1859,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 设置用户希望遵循的第一次流程的类型：创建或导入
    * Sets the type of first time flow the user wishes to follow: create or import
    * @param {String} type - Indicates the type of first time flow the user wishes to follow
    * @param {Function} cb - A callback function called when complete.
@@ -1796,6 +1875,7 @@ module.exports = class MetamaskController extends EventEmitter {
 
 
   /**
+   * 设置用户当前语言
    * A method for setting a user's current locale, affecting the language rendered.
    * @param {string} key - Locale identifier.
    * @param {Function} cb - A callback function called when complete.
@@ -1810,6 +1890,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 首次初始化存储
    * A method for initializing storage the first time.
    * @param {Object} initState - The default state to initialize with.
    * @private
@@ -1825,6 +1906,7 @@ module.exports = class MetamaskController extends EventEmitter {
 
   // TODO: Replace isClientOpen methods with `controllerConnectionChanged` events.
   /**
+   * 记录 MetaMask 用户界面是否打开
    * A method for recording whether the MetaMask user interface is open or not.
    * @private
    * @param {boolean} open
@@ -1836,6 +1918,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 激活 token 价格检索
    * A method for activating the retrieval of price data,
    * which should only be fetched when the UI is visible.
    * @private
@@ -1855,6 +1938,7 @@ module.exports = class MetamaskController extends EventEmitter {
   */
 
   /**
+   * 将域添加到PhishingController白名单
    * Adds a domain to the PhishingController whitelist
    * @param {string} hostname the domain to whitelist
    */
@@ -1863,6 +1947,7 @@ module.exports = class MetamaskController extends EventEmitter {
   }
 
   /**
+   * 锁定 MetaMask
    * Locks MetaMask
    */
   setLocked () {

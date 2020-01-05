@@ -1,6 +1,8 @@
 /*global Web3*/
 
+// 注入全局 Web3
 
+// 缓存 global.define，防止冲突
 // need to make sure we aren't affected by overlapping namespaces
 // and that we dont affect the app with our namespace
 // mostly a fix for web3's BigNumber if AMD's "define" is defined...
@@ -49,12 +51,14 @@ log.setDefaultLevel(process.env.METAMASK_DEBUG ? 'debug' : 'warn')
 // setup plugin communication
 //
 
+// /为页面inpage与contentscript建立双向流连接
 // setup background connection
 const metamaskStream = new LocalMessageDuplexStream({
   name: 'inpage',
   target: 'contentscript',
 })
 
+// 组成inpageProvider
 // compose the inpage provider
 const inpageProvider = new MetamaskInpageProvider(metamaskStream)
 
@@ -103,6 +107,7 @@ const getPublicConfigWhenReady = async () => {
   return state
 }
 
+// 增加 _metamask 和一些方法
 // add metamask-specific convenience methods
 inpageProvider._metamask = new Proxy({
   /**

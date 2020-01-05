@@ -9,6 +9,7 @@ const extend = require('xtend')
  */
 
 /**
+ * 后台 controller 负责维护本地存储中帐户余额的缓存
  * Background controller responsible for maintaining
  * a cache of account balances in local storage
  */
@@ -67,6 +68,7 @@ class CachedBalancesController {
   }
 
   /**
+   * Account Tracker store 变化时更新余额缓存
    * Sets up listeners and subscriptions which should trigger an update of cached balances. These updates will
    * happen when the current account changes. Which happens on block updates, as well as on network and account
    * selections.

@@ -1,4 +1,5 @@
 /**
+ * 在“ rtl”和“ ltr”之间切换CSS样式表
  * Switch the CSS stylesheet used between 'rtl' and 'ltr'
  * @param {('ltr' | 'rtl')} direction Text direction, either left-to-right (ltr) or right-to-left (rtl)
  */

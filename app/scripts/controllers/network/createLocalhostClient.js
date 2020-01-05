@@ -10,6 +10,7 @@ const inTest = process.env.IN_TEST === 'true'
 
 module.exports = createLocalhostClient
 
+// 创建本地服务 Client
 function createLocalhostClient () {
   const fetchMiddleware = createFetchMiddleware({ rpcUrl: 'http://localhost:8545/' })
   const blockProvider = providerFromMiddleware(fetchMiddleware)

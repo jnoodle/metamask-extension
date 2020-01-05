@@ -1,6 +1,7 @@
 module.exports = createOriginMiddleware
 
 /**
+ * 把 DApp 的 origin 添加到请求报文里
  * Returns a middleware that appends the DApp origin to request
  * @param {{ origin: string }} opts - The middleware options
  * @returns {Function}

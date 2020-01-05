@@ -4,6 +4,7 @@ const normalize = require('eth-sig-util').normalize
 class PendingBalanceCalculator {
 
   /**
+   * 用于计算用户的待处理余额（当前余额 - 处理中的花费）
    * Used for calculating a users "pending balance": their current balance minus the total possible cost of all their
    * pending transactions.
    *
@@ -42,6 +43,7 @@ class PendingBalanceCalculator {
   }
 
   /**
+   * 计算交易的最大花费
    * Calculates the maximum possible cost of a single transaction, based on the value, gas price and gas limit.
    *
    * @param {object} tx Contains all that data about a transaction.

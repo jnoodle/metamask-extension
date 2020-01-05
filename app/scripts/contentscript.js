@@ -26,6 +26,7 @@ if (shouldInjectWeb3()) {
 }
 
 /**
+ * 把 inpage.js 注入到页面中，使浏览器能够调用这个脚本处理 json rpc
  * Injects a script tag into the current document
  *
  * @param {string} content - Code to be executed in the current document
@@ -53,6 +54,7 @@ async function start () {
 }
 
 /**
+ * 在浏览器扩展和本地浏览页面上下文之间建立双向通讯流
  * Sets up two-way communication streams between the
  * browser extension and local per-page browser context.
  *
@@ -156,6 +158,7 @@ function logStreamDisconnectWarning (remoteLabel, err) {
 }
 
 /**
+ * 是否应注入Web3（html页面，非 xml，pdf，且不在黑名单）
  * Determines if Web3 should be injected
  *
  * @returns {boolean} {@code true} if Web3 should be injected
@@ -246,6 +249,7 @@ function blacklistedDomainCheck () {
 }
 
 /**
+ * 钓鱼网站警告
  * Redirects the current page to a phishing information page
  */
 function redirectToPhishingWarning () {

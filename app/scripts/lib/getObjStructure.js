@@ -15,6 +15,7 @@ module.exports = getObjStructure
 // }
 
 /**
+ * 获取 obj 结构，即将 key 值替换成 key 类型
  * Creates an object that represents the structure of the given object. It replaces all values with the result of their
  * type.
  *

@@ -1,5 +1,6 @@
 module.exports = createDnodeRemoteGetter
 
+// 获取 dnode Server 端的 remote
 function createDnodeRemoteGetter (dnode) {
   let remote
 

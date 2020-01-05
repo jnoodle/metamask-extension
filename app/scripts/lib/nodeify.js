@@ -2,6 +2,7 @@ const promiseToCallback = require('promise-to-callback')
 const callbackNoop = function (err) { if (err) throw err }
 
 /**
+ * 把 Promise 转换成 node callback 风格，主要为了更好处理错误
  * A generator that returns a function which, when passed a promise, can treat that promise as a node style callback.
  * The prime advantage being that callbacks are better for error handling.
  *

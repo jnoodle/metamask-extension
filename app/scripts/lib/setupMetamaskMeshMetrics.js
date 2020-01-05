@@ -2,6 +2,7 @@
 module.exports = setupMetamaskMeshMetrics
 
 /**
+ * 将 iframe 注入当前文档以进行测试
  * Injects an iframe into the current document for testing
  */
 function setupMetamaskMeshMetrics () {

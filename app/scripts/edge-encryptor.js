@@ -2,11 +2,13 @@ const asmcrypto = require('asmcrypto.js')
 const Unibabel = require('browserify-unibabel')
 
 /**
+ * 微软 Edge 浏览器特定的加解密 API
  * A Microsoft Edge-specific encryption class that exposes
  * the interface expected by eth-keykeyring-controller
  */
 class EdgeEncryptor {
   /**
+   * 将任意对象加密为密文
    * Encrypts an arbitrary object to ciphertext
    *
    * @param {string} password Used to generate a key to encrypt the data
@@ -34,6 +36,7 @@ class EdgeEncryptor {
   }
 
   /**
+   * 从密文解密任意对象
    * Decrypts an arbitrary object from ciphertext
    *
    * @param {string} password Used to generate a key to decrypt the data
@@ -63,6 +66,7 @@ class EdgeEncryptor {
   }
 
   /**
+   * 使用密码检索加密密钥
    * Retrieves a cryptographic key using a password
    *
    * @private
@@ -83,6 +87,7 @@ class EdgeEncryptor {
   }
 
   /**
+   * 生成随机的base64编码数据
    * Generates random base64 encoded data
    *
    * @private

@@ -5,6 +5,7 @@ const log = require('loglevel')
 // every ten minutes
 const POLLING_INTERVAL = 10 * 60 * 1000
 
+// 每10分钟检测下 infura 联通情况（https://api.infura.io/v1/status/metamask）
 class InfuraController {
 
   constructor (opts = {}) {

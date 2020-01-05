@@ -16,6 +16,7 @@ module.exports = function (version, reason, condition) {
   }
 }
 
+// 迁移时作废掉 tx
 function transformState (state, condition, reason) {
   const newState = state
   const { TransactionController } = newState

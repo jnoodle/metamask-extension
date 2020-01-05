@@ -6,6 +6,7 @@ const supportedTopLevelDomains = ['eth']
 
 module.exports = setupEnsIpfsResolver
 
+// 设置 ens ipfs 解析器
 function setupEnsIpfsResolver ({ provider }) {
 
   // install listener
@@ -20,6 +21,7 @@ function setupEnsIpfsResolver ({ provider }) {
     },
   }
 
+  // 请求出错处理
   async function webRequestDidFail (details) {
     const { tabId, url } = details
     // ignore requests that are not associated with tabs
@@ -35,6 +37,7 @@ function setupEnsIpfsResolver ({ provider }) {
     attemptResolve({ tabId, name, path, search })
   }
 
+  // 尝试转换并请求
   async function attemptResolve ({ tabId, name, path, search }) {
     extension.tabs.update(tabId, { url: `loading.html` })
     let url = `https://manager.ens.domains/name/${name}`

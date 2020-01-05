@@ -5,6 +5,7 @@ const BN = require('ethereumjs-util').BN
 class BalanceController {
 
   /**
+   * 存储和更新账户余额
    * Controller responsible for storing and updating an account's balance.
    *
    * @typedef {Object} BalanceController
@@ -57,6 +58,7 @@ class BalanceController {
   }
 
   /**
+   * 设置一些触发 ethBalance 更新的 listener
    * Sets up listeners and subscriptions which should trigger an update of ethBalance. These updates include:
    * - when a transaction changes state to 'submitted', 'confirmed' or 'failed'
    * - when the current account changes (i.e. a new account is selected)
@@ -84,6 +86,7 @@ class BalanceController {
   }
 
   /**
+   * 获取余额，没有余额返回 undefined
    * Gets the balance, as a base 16 hex string, of the account at this BalanceController's current address.
    * If the current account has no balance, returns undefined.
    *
@@ -99,6 +102,7 @@ class BalanceController {
   }
 
   /**
+   * 获取处理中的tx TransactionController.getFilteredTxList
    * Gets the pending transactions (i.e. those with a 'submitted' status). These are accessed from the
    * TransactionController passed to this BalanceController during construction.
    *
@@ -116,6 +120,7 @@ class BalanceController {
   }
 
   /**
+   * 必要属性验证
    * Validates that the passed options have all required properties.
    *
    * @param {Object} opts The options object to validate

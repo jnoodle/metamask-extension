@@ -17,6 +17,7 @@ const KOVAN_DISPLAY_NAME = 'Kovan'
 const MAINNET_DISPLAY_NAME = 'Main Ethereum Network'
 const GOERLI_DISPLAY_NAME = 'Goerli'
 
+// 网络配置枚举
 module.exports = {
   ROPSTEN,
   RINKEBY,

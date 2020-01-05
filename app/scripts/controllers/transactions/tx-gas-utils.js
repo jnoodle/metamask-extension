@@ -12,6 +12,7 @@ const SIMPLE_GAS_COST = '0x5208' // Hex for 21000, cost of a simple send.
 import { TRANSACTION_NO_CONTRACT_ERROR_KEY } from '../../../../ui/app/helpers/constants/error-keys'
 
 /**
+ 提供了一些 gas 相关的工具方法
 tx-gas-utils are gas utility methods for Transaction manager
 its passed ethquery
 and used to do things like calculate gas of a tx.
@@ -52,7 +53,7 @@ class TxGasUtil {
   }
 
   /**
-    Estimates the tx's gas usage
+    Estimates the tx's gas usage 估算gas
     @param txMeta {Object} - the txMeta object
     @param blockGasLimitHex {string} - hex string of the block's gas limit
     @returns {string} the estimated gas limit as a hex string
@@ -78,6 +79,7 @@ class TxGasUtil {
 
       if (categorizedAsSimple) {
         // if there's data in the params, but there's no contract code, it's not a valid transaction
+        // 发给零地址的都是智能合约，必须有 data
         if (txParams.data) {
           const err = new Error('TxGasUtil - Trying to call a function on a non-contract address')
           // set error key so ui can display localized error message
@@ -129,6 +131,7 @@ class TxGasUtil {
   }
 
   /**
+    添加 gas buffer，且不超过 gas limit
     Adds a gas buffer with out exceeding the block gas limit
 
     @param initialGasLimitHex {string} - the initial gas limit to add the buffer too

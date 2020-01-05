@@ -12,6 +12,9 @@ module.exports = launchMetamaskUi
 
 log.setLevel(global.METAMASK_DEBUG ? 'debug' : 'warn')
 
+// 运行 MetaMask UI
+// 连接 background
+
 function launchMetamaskUi (opts, cb) {
   var {backgroundConnection} = opts
   actions._setBackgroundConnection(backgroundConnection)
@@ -25,6 +28,7 @@ function launchMetamaskUi (opts, cb) {
   })
 }
 
+// 启动 App
 async function startApp (metamaskState, backgroundConnection, opts) {
   // parse opts
   if (!metamaskState.featureFlags) metamaskState.featureFlags = {}
@@ -56,6 +60,7 @@ async function startApp (metamaskState, backgroundConnection, opts) {
     networkVersion: opts.networkVersion,
   })
 
+  // 如果有未确认txs，则从 txConf 页面开始
   // if unconfirmed txs, start on txConf page
   const unapprovedTxsAll = txHelper(metamaskState.unapprovedTxs, metamaskState.unapprovedMsgs, metamaskState.unapprovedPersonalMsgs, metamaskState.unapprovedTypedMessages, metamaskState.network)
   const numberOfUnapprivedTx = unapprovedTxsAll.length

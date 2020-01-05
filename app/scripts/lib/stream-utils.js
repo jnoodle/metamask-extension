@@ -2,6 +2,10 @@ const Through = require('through2')
 const ObjectMultiplex = require('obj-multiplex')
 const pump = require('pump')
 
+// https://github.com/rvagg/through2
+// https://github.com/kumavis/obj-multiplex
+// https://github.com/mafintosh/pump
+
 module.exports = {
   jsonParseStream: jsonParseStream,
   jsonStringifyStream: jsonStringifyStream,
@@ -9,6 +13,7 @@ module.exports = {
 }
 
 /**
+ * 返回 JSON.parse 后的 stream
  * Returns a stream transform that parses JSON strings passing through
  * @return {stream.Transform}
  */
@@ -20,6 +25,7 @@ function jsonParseStream () {
 }
 
 /**
+ * 返回 JSON.stringify 后的 stream
  * Returns a stream transform that calls {@code JSON.stringify}
  * on objects passing through
  * @return {stream.Transform} the stream transform
@@ -32,6 +38,7 @@ function jsonStringifyStream () {
 }
 
 /**
+ * 把 stream 转换成多路复用 stream
  * Sets up stream multiplexing for the given stream
  * @param {any} connectionStream - the stream to mux
  * @return {stream.Stream} the multiplexed stream

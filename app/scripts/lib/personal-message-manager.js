@@ -25,6 +25,7 @@ const log = require('loglevel')
  *
  */
 
+// personal_sign 接口数据制备
 module.exports = class PersonalMessageManager extends EventEmitter {
   /**
    * Controller in charge of managing - storing, adding, removing, updating - PersonalMessage.

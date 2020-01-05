@@ -16,6 +16,7 @@ allLocales.forEach(locale => {
 })
 
 /**
+ * 根据用户浏览器中的设置返回首选语言代码
  * Returns a preferred language code, based on settings within the user's browser. If we have no translations for the
  * users preferred locales, 'en' is returned.
  *

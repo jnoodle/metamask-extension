@@ -22,6 +22,7 @@ const createId = require('./random-id')
  *
  */
 
+// eth_sign 接口数据制备
 module.exports = class MessageManager extends EventEmitter {
 
   /**

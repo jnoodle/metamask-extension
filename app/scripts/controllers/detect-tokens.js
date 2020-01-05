@@ -5,11 +5,13 @@ const { MAINNET } = require('./network/enums')
 // By default, poll every 3 minutes
 const DEFAULT_INTERVAL = 180 * 1000
 const ERC20_ABI = [{'constant': true, 'inputs': [{'name': '_owner', 'type': 'address'}], 'name': 'balanceOf', 'outputs': [{'name': 'balance', 'type': 'uint256'}], 'payable': false, 'type': 'function'}]
+
+// https://etherscan.io/address/0xb1f8e55c7f64d203c1400b9d8555d050f94adf39#code
 const SINGLE_CALL_BALANCES_ABI = require('single-call-balance-checker-abi')
 const SINGLE_CALL_BALANCES_ADDRESS = '0xb1f8e55c7f64d203c1400b9d8555d050f94adf39'
 /**
- * A controller that polls for token exchange
- * rates based on a user's current token list
+ * 根据用户当前的 token 列表轮询 token 汇率
+ * A controller that polls for token exchange rates based on a user's current token list
  */
 class DetectTokensController {
   /**
@@ -25,7 +27,16 @@ class DetectTokensController {
   }
 
   /**
-   * For each token in eth-contract-metada, find check selectedAddress balance.
+   * eth-contract-metadata 里面有所有的 token contract 信息，比如：
+       "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0": {
+        "name": "EOS",
+        "logo": "eos-logo.jpeg",
+        "erc20": true,
+        "symbol": "EOS",
+        "decimals": 18
+      }
+     遍历查余额
+   * For each token in eth-contract-metadata, find check selectedAddress balance.
    *
    */
   async detectNewTokens () {
@@ -75,6 +86,7 @@ class DetectTokensController {
   }
 
   /**
+   * 重新检测
    * Restart token detection polling period and call detectNewTokens
    * in case of address change or user session initialization.
    *
@@ -95,6 +107,7 @@ class DetectTokensController {
   }
 
   /**
+   * 地址变了，重新轮询查余额
    * In setter when selectedAddress is changed, detectNewTokens and restart polling
    * @type {Object}
    */
@@ -120,6 +133,7 @@ class DetectTokensController {
   }
 
   /**
+   * isUnlocked 变成 true 时重新轮询
    * In setter when isUnlocked is updated to true, detectNewTokens and restart polling
    * @type {Object}
    */

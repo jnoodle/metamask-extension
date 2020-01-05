@@ -13,7 +13,10 @@ const {
   PLATFORM_BRAVE,
 } = require('./enums')
 
+// 一些常用工具方法
+
 /**
+ * 生成堆栈跟踪示例
  * Generates an example stack trace
  *
  * @returns {string} A stack trace
@@ -25,6 +28,7 @@ function getStack () {
 }
 
 /**
+ * 检测窗口类型（根据访问的页面）
  * Used to determine the window type through which the app is being viewed.
  *  - 'popup' refers to the extension opened through the browser app icon (in top right corner in chrome and firefox)
  *  - 'responsive' refers to the main browser window
@@ -48,6 +52,7 @@ const getEnvironmentType = (url = window.location.href) => {
 }
 
 /**
+ * 返回运行扩展程序的平台（浏览器）
  * Returns the platform (browser) where the extension is running.
  *
  * @returns {string} the platform ENUM
@@ -71,6 +76,7 @@ const getPlatform = _ => {
 }
 
 /**
+ * 检查给定的以十六进制字符串表示的ETH余额是否足以支付 gas fee
  * Checks whether a given balance of ETH, represented as a hex string, is sufficient to pay a value plus a gas fee
  *
  * @param {object} txParams Contains data about a transaction
@@ -96,6 +102,7 @@ function sufficientBalance (txParams, hexBalance) {
 }
 
 /**
+ * 将 BN 对象转换为前缀为“0x”的十六进制字符串
  * Converts a BN object to a hex string with a '0x' prefix
  *
  * @param {BN} inputBn The BN to convert to a hex string
@@ -107,6 +114,7 @@ function bnToHex (inputBn) {
 }
 
 /**
+ * 将十六进制字符串转换为BN对象
  * Converts a hex string to a BN object
  *
  * @param {string} inputHex A number represented as a hex string
@@ -118,6 +126,7 @@ function hexToBn (inputHex) {
 }
 
 /**
+ * 用于将BN乘以分数
  * Used to multiply a BN by a fraction
  *
  * @param {BN} targetBN The number to multiply by a fraction
@@ -132,18 +141,21 @@ function BnMultiplyByFraction (targetBN, numerator, denominator) {
   return targetBN.mul(numBN).div(denomBN)
 }
 
+// 增加 listener
 function applyListeners (listeners, emitter) {
   Object.keys(listeners).forEach((key) => {
     emitter.on(key, listeners[key])
   })
 }
 
+// 移除 listener
 function removeListeners (listeners, emitter) {
   Object.keys(listeners).forEach((key) => {
     emitter.removeListener(key, listeners[key])
   })
 }
 
+// 数组中随机取一个元素
 function getRandomArrayItem (array) {
   return array[Math.floor((Math.random() * array.length))]
 }

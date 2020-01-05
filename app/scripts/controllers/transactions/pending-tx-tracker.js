@@ -3,7 +3,7 @@ const log = require('loglevel')
 const EthQuery = require('ethjs-query')
 
 /**
-
+  监视包含交易的块并触发已确认的事件
   Event emitter utility class for tracking the transactions as they<br>
   go from a pending state to a confirmed (mined in a block) state<br>
 <br>
@@ -33,6 +33,7 @@ class PendingTransactionTracker extends EventEmitter {
   }
 
   /**
+    检查网络中是否有已签名的TX，如果有，释放 nonce 全局锁
     checks the network for signed txs and releases the nonce global lock if it is
   */
   async updatePendingTxs () {
@@ -49,6 +50,7 @@ class PendingTransactionTracker extends EventEmitter {
   }
 
   /**
+    将重新提交尚未在区块中确认的交易
     Will resubmit any transactions who have not been confirmed in a block
     @param block {object} - a block object
     @emits tx:warning
@@ -121,6 +123,7 @@ class PendingTransactionTracker extends EventEmitter {
   }
 
   /**
+    要求网络进行交易以查看其是否已包含在区块中
     Ask the network for the transaction to see if it has been include in a block
     @param txMeta {Object} - the txMeta object
     @emits tx:failed
@@ -157,6 +160,8 @@ class PendingTransactionTracker extends EventEmitter {
       // IS A SECURITY FOR HITTING NODES IN INFURA THAT COULD GO OUT
       // OF SYNC.
       // on the next block event it will return fire as dropped
+      // 先扔到 droppedBuffer
+      // https://github.com/MetaMask/metamask-extension/pull/6388/files
       if (dropped && !this.droppedBuffer[txHash]) {
         this.droppedBuffer[txHash] = true
         dropped = false
@@ -187,6 +192,7 @@ class PendingTransactionTracker extends EventEmitter {
     }
   }
   /**
+    检查是否 nonce 已被另一笔交易使用
     checks to see if if the tx's nonce has been used by another transaction
     @param txMeta {Object} - txMeta object
     @emits tx:dropped
@@ -204,6 +210,7 @@ class PendingTransactionTracker extends EventEmitter {
   }
 
   /**
+    检查是否有已确认的 txMeta 包含相同的 nonce
     checks to see if a confirmed txMeta has the same nonce
     @param txMeta {Object} - txMeta object
     @returns {boolean}

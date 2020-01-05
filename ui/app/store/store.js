@@ -3,6 +3,7 @@ const { default: thunkMiddleware } = require('redux-thunk')
 const { composeWithDevTools } = require('remote-redux-devtools')
 const rootReducer = require('../ducks')
 
+// redux createStore
 module.exports = function configureStore (initialState) {
   const composeEnhancers = composeWithDevTools({
     name: 'MetaMask',

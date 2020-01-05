@@ -1,3 +1,5 @@
+// 收件人是否在黑名单检查器
+
 const Config = require('./recipient-blacklist.js')
 
 /** @module*/

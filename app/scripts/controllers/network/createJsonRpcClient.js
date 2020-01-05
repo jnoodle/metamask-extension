@@ -9,6 +9,7 @@ const BlockTracker = require('eth-block-tracker')
 
 module.exports = createJsonRpcClient
 
+// 创建 Json Rpc Client
 // https://github.com/MetaMask/json-rpc-engine
 
 function createJsonRpcClient ({ rpcUrl }) {

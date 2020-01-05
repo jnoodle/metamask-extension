@@ -1,3 +1,4 @@
+// 收件人地址黑名单，一般都是钓鱼地址
 module.exports = {
   'blacklist': [
     // IDEX phisher

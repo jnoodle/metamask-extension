@@ -12,6 +12,8 @@ const createOriginMiddleware = require('../lib/createOriginMiddleware')
 
 const SYNC_TIMEOUT = 60 * 1000 // one minute
 
+// https://github.com/3box/3box-js
+// 3box Controller 设置，获取和删除与以太坊账户相关的私人和公共数据
 class ThreeBoxController {
   constructor (opts = {}) {
     const {

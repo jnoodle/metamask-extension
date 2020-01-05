@@ -1,5 +1,11 @@
 // 'use strict';
 
+// 重新加载Chrome应用和扩展程序的客户端。
+// 与livereload兼容：
+// LiveReload监视文件系统中的更改。保存文件后，将根据需要对其进行预处理，然后刷新浏览器。
+// 更酷的是，当更改CSS文件或图像时，浏览器会立即更新，而无需重新加载页面。
+// https://github.com/livereload/livereload-js/blob/v2.2.0/dist/livereload.js
+
 // // Reload client for Chrome Apps & Extensions.
 // // The reload client has a compatibility with livereload.
 // // WARNING: only supports reload command.

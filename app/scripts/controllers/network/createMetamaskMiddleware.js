@@ -6,6 +6,7 @@ const createWalletSubprovider = require('eth-json-rpc-middleware/wallet')
 module.exports = createMetamaskMiddleware
 
 /**
+ * 创建 Metamask 中间件
  * createMetamaskMiddleware
  * @param version `MetaMask/v${version}`
  * @param getAccounts(req) lookupAccounts middleware next

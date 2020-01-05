@@ -5,6 +5,7 @@ const TRANSACTION_TYPE_STANDARD = 'standard'
 const TRANSACTION_STATUS_APPROVED = 'approved'
 const TRANSACTION_STATUS_CONFIRMED = 'confirmed'
 
+// 交易目前的状态枚举
 module.exports = {
   TRANSACTION_TYPE_CANCEL,
   TRANSACTION_TYPE_RETRY,

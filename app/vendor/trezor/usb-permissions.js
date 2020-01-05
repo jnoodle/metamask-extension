@@ -1,4 +1,5 @@
 /*
+处理来自USB权限iframe的消息
 Handling messages from usb permissions iframe
 */
 

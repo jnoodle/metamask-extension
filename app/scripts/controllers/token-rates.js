@@ -8,6 +8,7 @@ const ethUtil = require('ethereumjs-util')
 const DEFAULT_INTERVAL = 180 * 1000
 
 /**
+ * 轮询获取用户 token 的汇率
  * A controller that polls for token exchange
  * rates based on a user's current token list
  */
@@ -26,6 +27,7 @@ class TokenRatesController {
 
   /**
    * Updates exchange rates for all tokens
+   * https://www.coingecko.com/
    */
   async updateExchangeRates () {
     if (!this.isActive) { return }

@@ -1,4 +1,5 @@
 /**
+ * 去掉错误中的堆栈信息，以更好地显示在UI
  * Returns error without stack trace for better UI display
  * @param {Error} err - error
  * @returns {Error} Error with clean stack trace.

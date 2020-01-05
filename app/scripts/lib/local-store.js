@@ -2,6 +2,7 @@ const extension = require('extensionizer')
 const log = require('loglevel')
 
 /**
+ * extension 本地存储的包装
  * A wrapper around the extension's storage local API
  */
 module.exports = class ExtensionStore {

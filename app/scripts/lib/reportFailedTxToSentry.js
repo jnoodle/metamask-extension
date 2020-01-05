@@ -7,6 +7,7 @@ module.exports = reportFailedTxToSentry
 // for sending to sentry
 //
 
+// 格式化失败的 tx message，发给 sentry https://sentry.io/
 function reportFailedTxToSentry ({ sentry, txMeta }) {
   const errorMessage = 'Transaction Failed: ' + extractEthjsErrorMessage(txMeta.err.message)
   sentry.captureMessage(errorMessage, {

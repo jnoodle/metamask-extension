@@ -4,6 +4,7 @@ const {createExplorerLink: explorerLink} = require('etherscan-link')
 const {getEnvironmentType} = require('../lib/util')
 const {ENVIRONMENT_TYPE_BACKGROUND} = require('../lib/enums')
 
+// 标准化 extension 方法
 class ExtensionPlatform {
 
   //

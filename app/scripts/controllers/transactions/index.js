@@ -73,9 +73,13 @@ class TransactionController extends EventEmitter {
 
     this.memStore = new ObservableStore({})
     this.query = new EthQuery(this.provider)
+
+    // txGasUtil
     this.txGasUtil = new TxGasUtil(this.provider)
 
     this._mapMethods()
+
+    // txStateManager
     this.txStateManager = new TransactionStateManager({
       initState: opts.initState,
       txHistoryLimit: opts.txHistoryLimit,
@@ -84,6 +88,8 @@ class TransactionController extends EventEmitter {
     this._onBootCleanUp()
 
     this.store = this.txStateManager.store
+
+    // nonceTracker
     this.nonceTracker = new NonceTracker({
       provider: this.provider,
       blockTracker: this.blockTracker,
@@ -91,6 +97,7 @@ class TransactionController extends EventEmitter {
       getConfirmedTransactions: this.txStateManager.getConfirmedTransactions.bind(this.txStateManager),
     })
 
+    // pendingTxTracker
     this.pendingTxTracker = new PendingTransactionTracker({
       provider: this.provider,
       nonceTracker: this.nonceTracker,
@@ -274,6 +281,7 @@ class TransactionController extends EventEmitter {
   }
 
   /**
+   * 取消交易其实就是向相同的地址发送 0x value，然后使用更大的 gasPrice
    * Creates a new approved transaction to attempt to cancel a previously submitted transaction. The
    * new transaction contains the same nonce as the previous, is a basic ETH transfer of 0x value to
    * the sender's address, and has a higher gasPrice than that of the previous transaction.
@@ -307,6 +315,7 @@ class TransactionController extends EventEmitter {
     return newTxMeta
   }
 
+  // gasPrice 大，交易速度就快
   async createSpeedUpTransaction (originalTxId, customGasPrice) {
     const originalTxMeta = this.txStateManager.getTx(originalTxId)
     const { txParams } = originalTxMeta
@@ -339,7 +348,7 @@ class TransactionController extends EventEmitter {
   }
 
   /**
-  updates and approves the transaction
+   更新并批准交易 updates and approves the transaction
   @param txMeta {Object}
   */
   async updateAndApproveTransaction (txMeta) {
@@ -483,6 +492,7 @@ class TransactionController extends EventEmitter {
   }
 
   /**
+    设置交易状态为 rejected
     Convenience method for the ui thats sets the transaction to rejected
     @param txId {number} - the tx's Id
     @returns {Promise<void>}

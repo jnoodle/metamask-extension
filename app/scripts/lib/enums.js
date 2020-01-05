@@ -15,6 +15,7 @@ const RINKEBY_CHAIN_ID = '0x4'
 const KOVAN_CHAIN_ID = '0x2a'
 const GOERLI_CHAIN_ID = '0x5'
 
+// 常用枚举：环境类型，平台，网络 chainId
 module.exports = {
   ENVIRONMENT_TYPE_POPUP,
   ENVIRONMENT_TYPE_NOTIFICATION,
